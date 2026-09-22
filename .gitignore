@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Herramientas de desarrollo
+.vscode/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
