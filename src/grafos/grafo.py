@@ -1,6 +1,8 @@
 from .nodo import Nodo
 from .arista import Arista
 from collections import deque
+import heapq
+from itertools import count
 
 
 class Grafo:
@@ -15,7 +17,7 @@ class Grafo:
 
         return self.nodos[id]
 
-    def agregar_arista(self, origen, destino):
+    def agregar_arista(self, origen, destino, peso=1.0):
         nodo_origen = self.nodos[origen]
         nodo_destino = self.nodos[destino]
 
@@ -27,8 +29,8 @@ class Grafo:
                 if arista.origen.id == destino and arista.destino.id == origen:
                     return
 
-        self.aristas.append(Arista(nodo_origen, nodo_destino))
-
+        self.aristas.append(Arista(nodo_origen, nodo_destino, peso))
+   
     def _adyacencias(self):
         adyacencias = {nodo_id: [] for nodo_id in self.nodos}
 
@@ -43,7 +45,7 @@ class Grafo:
 
         return adyacencias
 
-    def guardar_gv(self, nombre_archivo):
+    def guardar_gv(self, nombre_archivo, mostrar_pesos=False):
         tipo_grafo = "digraph" if self.dirigido else "graph"
         operador = "->" if self.dirigido else "--"
 
@@ -59,9 +61,17 @@ class Grafo:
                     archivo.write(f'    "{nodo.id}";\n')
 
             for arista in self.aristas:
-                archivo.write(
-                    f'    "{arista.origen.id}" {operador} "{arista.destino.id}";\n'
-                )
+                if mostrar_pesos:
+                    archivo.write(
+                        f'    "{arista.origen.id}" {operador} '
+                        f'"{arista.destino.id}" '
+                        f'[label="{arista.peso:.2f}"];\n'
+                    )
+                else:
+                    archivo.write(
+                        f'    "{arista.origen.id}" {operador} '
+                        f'"{arista.destino.id}";\n'
+                    )
 
             archivo.write("}\n")
 
@@ -193,5 +203,116 @@ class Grafo:
             for vecino in reversed(adyacencias[actual]):
                 if vecino not in visitados:
                     pila.append((vecino, actual))
+
+        return arbol
+
+    def _adyacencias_pesadas(self):
+        adyacencias = {
+            nodo_id: []
+            for nodo_id in self.nodos
+        }
+
+        for arista in self.aristas:
+            if arista.peso < 0:
+                raise ValueError(
+                    "Dijkstra no admite pesos negativos"
+                )
+
+            origen = arista.origen.id
+            destino = arista.destino.id
+            peso = arista.peso
+
+            adyacencias[origen].append(
+                (destino, peso)
+            )
+
+            if not self.dirigido:
+                adyacencias[destino].append(
+                    (origen, peso)
+                )
+
+        return adyacencias
+
+    def Dijkstra(self, s):
+        if s not in self.nodos:
+            raise ValueError(
+                f"El nodo {s} no existe en el grafo"
+            )
+
+        adyacencias = self._adyacencias_pesadas()
+
+        distancias = {
+            nodo_id: float("inf")
+            for nodo_id in self.nodos
+        }
+
+        anteriores = {
+            nodo_id: None
+            for nodo_id in self.nodos
+        }
+
+        distancias[s] = 0.0
+
+        contador = count()
+        cola = [(0.0, next(contador), s)]
+
+        while cola:
+            distancia_actual, _, actual = heapq.heappop(
+                cola
+            )
+
+            if distancia_actual > distancias[actual]:
+                continue
+
+            for vecino, peso in adyacencias[actual]:
+                nueva_distancia = (
+                    distancia_actual + peso
+                )
+
+                if nueva_distancia < distancias[vecino]:
+                    distancias[vecino] = nueva_distancia
+                    anteriores[vecino] = (
+                        actual,
+                        peso
+                    )
+
+                    heapq.heappush(
+                        cola,
+                        (
+                            nueva_distancia,
+                            next(contador),
+                            vecino
+                        )
+                    )
+
+        arbol = Grafo(self.dirigido)
+        etiquetas = {}
+
+        for nodo_id, distancia in distancias.items():
+            if distancia == float("inf"):
+                continue
+
+            nodo_original = self.nodos[nodo_id]
+
+            etiqueta = f"{nodo_id} ({distancia:.2f})"
+            etiquetas[nodo_id] = etiqueta
+
+            arbol.agregar_nodo(
+                etiqueta,
+                nodo_original.x,
+                nodo_original.y
+            )
+
+        for nodo_id, anterior in anteriores.items():
+            if anterior is None:
+                continue
+
+            padre, peso = anterior
+
+            arbol.agregar_arista(
+                etiquetas[padre],
+                etiquetas[nodo_id],
+                peso
+            )
 
         return arbol
