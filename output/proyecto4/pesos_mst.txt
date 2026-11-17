@@ -1,0 +1,14 @@
+RESULTADOS DEL PROYECTO 4 - PESOS DEL MST
+
+malla_30: KruskalD=742.01 | KruskalI=742.01 | Prim=742.01 | OK
+malla_500: KruskalD=15129.46 | KruskalI=15129.46 | Prim=15129.46 | OK
+erdos_renyi_30: KruskalD=395.25 | KruskalI=395.25 | Prim=395.25 | OK
+erdos_renyi_500: KruskalD=7940.70 | KruskalI=7940.70 | Prim=7940.70 | OK
+gilbert_30: KruskalD=404.69 | KruskalI=404.69 | Prim=404.69 | OK
+gilbert_500: KruskalD=7990.15 | KruskalI=7990.15 | Prim=7990.15 | OK
+geografico_30: KruskalD=562.76 | KruskalI=562.76 | Prim=562.76 | OK
+geografico_500: KruskalD=6366.14 | KruskalI=6366.14 | Prim=6366.14 | OK
+barabasi_albert_30: KruskalD=789.25 | KruskalI=789.25 | Prim=789.25 | OK
+barabasi_albert_500: KruskalD=11074.48 | KruskalI=11074.48 | Prim=11074.48 | OK
+dorogovtsev_mendes_30: KruskalD=856.99 | KruskalI=856.99 | Prim=856.99 | OK
+dorogovtsev_mendes_500: KruskalD=15596.29 | KruskalI=15596.29 | Prim=15596.29 | OK
